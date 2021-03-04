@@ -1,0 +1,9 @@
+HotManagement/settings.py
+*.pyc
+.idea
+Lib/*
+Scripts/*
+pyvenv.cfg
+*.svg
+*.png
+*.jpeg
