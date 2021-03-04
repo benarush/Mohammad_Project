@@ -4,12 +4,6 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
-class UserDetails(models.Model):
-    full_name = models.CharField(max_length=150, blank=True, null=True)
-    location = models.CharField(max_length=150, blank=True, null=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-
 class Post(models.Model):
     title = models.CharField(max_length=100, unique=True)
     content = models.TextField()

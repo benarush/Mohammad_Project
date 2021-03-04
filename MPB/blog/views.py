@@ -11,19 +11,12 @@ from .serializers import *
 from rest_framework import permissions
 from .models import *
 from django.conf import settings
-import clearbit
 
 @receiver(post_save , sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
-        clearbit.key = settings.CLEARBIT_API_KEY
-        response = clearbit.Enrichment.find(email=instance.email, stream=True)
-        if response:
-            UserDetails.objects.create(full_name=response['person']['name']['fullName'],
-                                       location=response['person']['location'],
-                                       user=instance
-                                       )
+
 
 
 class CreateUserView(CreateAPIView):

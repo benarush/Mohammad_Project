@@ -3,7 +3,6 @@ from rest_framework.relations import SlugRelatedField
 from .models import Post ,PostLikes
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .thirdPartyApplications.thirdParties import API
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -11,9 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
 
     def create(self, validated_data):
-        third_party_validation = API(validated_data['email'])
-        if not third_party_validation.hunter_validation():
-            raise serializers.ValidationError({"status": "unrecognized email by hunter.io ."},)
+        #raise serializers.ValidationError({"status": "unrecognized email by hunter.io ."},)
         user = User.objects.create(
             username=validated_data['username'],
             email=validated_data['email']
@@ -24,7 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        # Tuple of serialized model fields (see link [2])
         fields = ("id", "username", "password", "email")
 
 
