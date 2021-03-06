@@ -10,7 +10,7 @@ class BotConfig:
     CONFIG_DIR = os.path.join(os.path.dirname(__file__), "")
     urls = {
         'create_user':  'http://127.0.0.1:8000/create_user/',
-        'create_post':  'http://127.0.0.1:8000/create_post/',
+        'create_post':  'http://127.0.0.1:8000/postAPI/',
         'create_like':  'http://127.0.0.1:8000/post_like/',
         'get_token':    'http://127.0.0.1:8000/login/',
     }
@@ -34,14 +34,16 @@ class BotConfig:
     def number_of_users(self):
         return int(self.XML.getroot().attrib['number_of_users'])
 
-    def set_max_posts_per_user(self, max_posts_per_user):
+    @number_of_users.setter
+    def number_of_users(self, max_posts_per_user):
         self.XML.getroot().attrib['max_posts_per_user'] = max_posts_per_user
 
     @property
     def max_posts_per_user(self):
         return int(self.XML.getroot().attrib['max_posts_per_user'])
 
-    def set_max_likes_per_user(self, max_likes_per_user):
+    @max_posts_per_user.setter
+    def max_posts_per_user(self, max_likes_per_user):
         self.XML.getroot().attrib['max_likes_per_user'] = max_likes_per_user
 
     @property

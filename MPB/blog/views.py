@@ -18,7 +18,9 @@ from rest_framework.schemas import AutoSchema
 import coreapi
 
 # class BlogListAPISchema(AutoSchema):
-# #I create this schema for swagger , but i comment it because the token header issue
+
+#                       I create this schema for swagger , but i comment it because the token header issue
+#                       https://github.com/marcgibbons/django-rest-swagger/issues/759
 #
 #     def get_manual_fields(self, path, method):
 #         extra_fields = []
@@ -53,11 +55,11 @@ class PostAPIView(APIView):
     Retrieve, update or delete a post instance.
     """
 #    schema = BlogListAPISchema()
-
 #    permission_classes = (IsAuthenticated, )
 
     def get(self, request):
-        serializer = PostSerializer(Post.objects.all().select_related('author').prefetch_related('likes'), many=True)
+        all_posts_data_two_queries = Post.objects.all().select_related('author').prefetch_related('likes')
+        serializer = PostSerializer(all_posts_data_two_queries, many=True)
         return Response(serializer.data)
 
 
