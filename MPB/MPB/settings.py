@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
+    'rest_swagger',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'MPB.urls'
@@ -85,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'MPB.wsgi.application'
 
-CLEARBIT_API_KEY = 'sk_bc4b328ff6a04f7e2c2cac4af0eeb092'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -97,6 +98,15 @@ DATABASES = {
     }
 }
 
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -116,6 +126,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# For The Debug ToolBar
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+    # ...
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

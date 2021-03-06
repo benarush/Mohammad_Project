@@ -1,0 +1,8 @@
+djangorestframework-simplejwt==4.6.0
+djangorestframework==3.12.2
+rest-swagger==1.0.0
+requests==2.25.1
+django-filter==2.4.0
+Django==3.1.7
+coreapi==2.3.3
+django-reset-migrations==0.4.0

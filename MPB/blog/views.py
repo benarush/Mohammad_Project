@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -10,12 +10,28 @@ from django.db.models.signals import post_save
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import status
-
-
 from .serializers import *
 from rest_framework import permissions
 from .models import *
 from django.conf import settings
+from rest_framework.schemas import AutoSchema
+import coreapi
+
+# class BlogListAPISchema(AutoSchema):
+# #I create this schema for swagger , but i comment it because the token header issue
+#
+#     def get_manual_fields(self, path, method):
+#         extra_fields = []
+#         if method.lower() == 'post':
+#             extra_fields = [
+#                 coreapi.Field('title'),
+#                 coreapi.Field('content'),
+#             ]
+#         elif method.lower() in ['delete']:
+#             coreapi.Field('post_id')
+#         manual_fields = super().get_manual_fields(path, method)
+#         return manual_fields + extra_fields
+
 
 @receiver(post_save , sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
@@ -27,7 +43,7 @@ class CreateUserView(CreateAPIView):
 
     model = User()
     permission_classes = [
-        permissions.AllowAny # Or anon users can't register
+        permissions.AllowAny
     ]
     serializer_class = UserSerializer
 
@@ -36,10 +52,12 @@ class PostAPIView(APIView):
     """
     Retrieve, update or delete a post instance.
     """
-    permission_classes = (IsAuthenticated,)
+#    schema = BlogListAPISchema()
+
+#    permission_classes = (IsAuthenticated, )
 
     def get(self, request):
-        serializer = PostSerializer(Post.objects.all() , many=True)
+        serializer = PostSerializer(Post.objects.all().select_related('author').prefetch_related('likes'), many=True)
         return Response(serializer.data)
 
 
@@ -51,9 +69,9 @@ class PostAPIView(APIView):
         return Response(serializer._errors, status.HTTP_400_BAD_REQUEST)
         
     def put(self, request, format=None):
-        pk = request.POST.get("post_id", None)
+        pk = request.data.get("post_id", None)
         if not pk:
-            return Response("Bad Request, need to provide post_id", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Bad Request, need to provide post_id.", status=status.HTTP_400_BAD_REQUEST)
         post = get_object_or_404(Post, id=pk)
         if post.author != request.user:
             return Response("permission denied", status=status.HTTP_403_FORBIDDEN)
@@ -64,7 +82,7 @@ class PostAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, format=None):
-        post = get_object_or_404(Post, id=request.POST["post_id"])
+        post = get_object_or_404(Post, id=request.data["post_id"])
         if post.author != request.user:
             return Response("permission denied", status=status.HTTP_403_FORBIDDEN)
         post.delete()
