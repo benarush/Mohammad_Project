@@ -6,22 +6,15 @@ from django.contrib.auth.models import User
 
 class Post(models.Model):
     title = models.CharField(max_length=100, unique=True)
-    content = models.TextField()
+    content = models.CharField(max_length=1000)
     date_posted = models.DateTimeField(default=timezone.now, blank=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    likes = models.ManyToManyField(User, related_name='post_like')
 
     def __str__(self):
-        return f"<{self.title}>"
+        return f"<Post {self.title}>"
 
     @property
     def likes_count(self):
-        return PostLikes.objects.filter(post=self).count()
+        return self.likes.count()
 
-
-class PostLikes(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.post}"
