@@ -55,7 +55,7 @@ class PostAPIView(APIView):
     Retrieve, update or delete a post instance.
     """
 #    schema = BlogListAPISchema()
-#    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
 
     def get(self, request):
         all_posts_data_two_queries = Post.objects.all().select_related('author').prefetch_related('likes')
