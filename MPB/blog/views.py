@@ -95,7 +95,7 @@ class PostAPIView(APIView):
 @authentication_classes([TokenAuthentication,])
 def create_post_likes(request):
 
-    post = get_object_or_404(Post, id=request.POST["post"])
+    post = get_object_or_404(Post, id=request.data["post"])
     if post.likes.filter(id=request.user.id).exists():
         post.likes.remove(request.user)
     else:

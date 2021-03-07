@@ -91,6 +91,14 @@ here is all the postman example for all API end-points
 	GET METHOD
 	url - http://127.0.0.1:8000/postAPI/
 		BODY: None
+
+	Create post like
+	POST METHOD 
+	url - http://127.0.0.1:8000/post_like/
+		Body : 
+		{
+			"post": 944
+		}
 ]
 
 
