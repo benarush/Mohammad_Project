@@ -74,7 +74,7 @@ def get_posts(token):
 
 token = get_token()
 print(f"Token - {token}")
-# print(get_posts(token))
+print(get_posts(token))
 # print(create_post(token))
 #print(create_post_likes(token))
 #print(update_post(token))
