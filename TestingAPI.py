@@ -78,6 +78,6 @@ print(get_posts(token))
 # print(create_post(token))
 #print(create_post_likes(token))
 #print(update_post(token))
-#print(delete_post(token))
+print(delete_post(token))
 # create_user()
 

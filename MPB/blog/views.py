@@ -17,22 +17,19 @@ from django.conf import settings
 from rest_framework.schemas import AutoSchema
 import coreapi
 
-# class BlogListAPISchema(AutoSchema):
+class PostListAPISchema(AutoSchema):
 
-#                       I create this schema for swagger , but i comment it because the token header issue
-#                       https://github.com/marcgibbons/django-rest-swagger/issues/759
-#
-#     def get_manual_fields(self, path, method):
-#         extra_fields = []
-#         if method.lower() == 'post':
-#             extra_fields = [
-#                 coreapi.Field('title'),
-#                 coreapi.Field('content'),
-#             ]
-#         elif method.lower() in ['delete']:
-#             coreapi.Field('post_id')
-#         manual_fields = super().get_manual_fields(path, method)
-#         return manual_fields + extra_fields
+    def get_manual_fields(self, path, method):
+        extra_fields = []
+        if method.lower() == 'post':
+            extra_fields = [
+                coreapi.Field('title'),
+                coreapi.Field('content'),
+            ]
+        elif method.lower() in ['delete']:
+            coreapi.Field('post_id')
+        manual_fields = super().get_manual_fields(path, method)
+        return manual_fields + extra_fields
 
 
 @receiver(post_save , sender=User)
@@ -42,7 +39,9 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 
 class CreateUserView(CreateAPIView):
-
+    """
+    Create User Account
+    """
     model = User()
     permission_classes = [
         permissions.AllowAny
@@ -54,14 +53,13 @@ class PostAPIView(APIView):
     """
     Retrieve, update or delete a post instance.
     """
-#    schema = BlogListAPISchema()
+    schema = PostListAPISchema()
     permission_classes = (IsAuthenticated, )
 
     def get(self, request):
         all_posts_data_two_queries = Post.objects.all().select_related('author').prefetch_related('likes')
         serializer = PostSerializer(all_posts_data_two_queries, many=True)
         return Response(serializer.data)
-
 
     def post(self, request):
         serializer = PostSerializer(data=request.data)
@@ -84,7 +82,10 @@ class PostAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, format=None):
-        post = get_object_or_404(Post, id=request.data["post_id"])
+        pk = request.data.get("post_id", None)
+        if not pk:
+            return Response("Bad Request, need to provide post_id.", status=status.HTTP_400_BAD_REQUEST)
+        post = get_object_or_404(Post, id=pk)
         if post.author != request.user:
             return Response("permission denied", status=status.HTTP_403_FORBIDDEN)
         post.delete()
@@ -94,7 +95,9 @@ class PostAPIView(APIView):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication,])
 def create_post_likes(request):
-
+    """
+    Create Post Like
+    """
     post = get_object_or_404(Post, id=request.data["post"])
     if post.likes.filter(id=request.user.id).exists():
         post.likes.remove(request.user)
