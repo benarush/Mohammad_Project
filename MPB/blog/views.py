@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication
-from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.decorators import api_view, authentication_classes, schema
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -17,22 +17,36 @@ from django.conf import settings
 from rest_framework.schemas import AutoSchema
 import coreapi
 
+
 class PostListAPISchema(AutoSchema):
 
     def get_manual_fields(self, path, method):
         extra_fields = []
-        if method.lower() == 'post':
-            extra_fields = [
-                coreapi.Field('title'),
-                coreapi.Field('content'),
-            ]
-        elif method.lower() in ['delete']:
-            coreapi.Field('post_id')
+        if 'post_like' in path:
+            extra_fields = [coreapi.Field('post'),]
+        elif method.lower() in ['post', 'put']:
+            extra_fields = self.post_update_fields(method.lower())
+        elif method.lower() == 'delete':
+            extra_fields = self.delete_fields
+
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields
 
+    def post_update_fields(self, method):
+        extra_fields = [coreapi.Field('title'),coreapi.Field('content')]
+        return extra_fields if method == 'post' else extra_fields + [coreapi.Field('post_id'), ]
 
-@receiver(post_save , sender=User)
+    @property
+    def delete_fields(self):
+        return [coreapi.Field('post_id',
+                                          location="body",
+                                          type="string",
+                                          description='{"post_id":"number"}',
+                                          example={"post_id":"number"}
+            ),]
+
+
+@receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
@@ -94,11 +108,12 @@ class PostAPIView(APIView):
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication,])
+@schema(PostListAPISchema())
 def create_post_likes(request):
     """
     Create Post Like
     """
-    post = get_object_or_404(Post, id=request.data["post"])
+    post = get_object_or_404(Post, id=request.data.get("post", None))
     if post.likes.filter(id=request.user.id).exists():
         post.likes.remove(request.user)
     else:
