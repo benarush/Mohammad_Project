@@ -33,7 +33,7 @@ class PostListAPISchema(AutoSchema):
         return manual_fields + extra_fields
 
     def post_update_fields(self, method):
-        extra_fields = [coreapi.Field('title'),coreapi.Field('content')]
+        extra_fields = [coreapi.Field('title'), coreapi.Field('content')]
         return extra_fields if method == 'post' else extra_fields + [coreapi.Field('post_id'), ]
 
     @property

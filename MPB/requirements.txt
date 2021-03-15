@@ -1,6 +1,6 @@
 djangorestframework-simplejwt==4.6.0
 djangorestframework==3.12.2
-rest-swagger==1.0.0
+django-rest-swagger==2.1.2
 requests==2.25.1
 django-filter==2.4.0
 Django==3.1.7
